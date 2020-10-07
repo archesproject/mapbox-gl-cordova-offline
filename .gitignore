@@ -3,3 +3,7 @@ node_modules/
 platforms/
 plugins/
 .DS_Store
+.vscode/plugins.json
+.vscode/typings/cordova/cordova.d.ts
+typings/cordova-typings.d.ts
+jsconfig.json

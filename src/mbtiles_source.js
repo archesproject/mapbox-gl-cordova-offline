@@ -28,7 +28,8 @@ class MBTilesSource extends VectorTileSource {
                     if (res.rows.length) {
                         const base64Data = res.rows.item(0).base64_tile_data;
                         const rawData = pako.inflate(base64js.toByteArray(base64Data));
-                        callback(undefined, base64js.fromByteArray(rawData)); // Tile contents read, callback success.
+                        const tileContent = base64js.fromByteArray(rawData);
+                        callback(undefined, tileContent); // Tile contents read, callback success.
                     } else {
                         callback(new Error('tile ' + params.join(',') + ' not found'));
                     }
@@ -73,12 +74,12 @@ class MBTilesSource extends VectorTileSource {
             };
 
             if (!tile.workerID || tile.state === 'expired') {
-                tile.workerID = this.dispatcher.send('loadTile', params, done.bind(this));
+                tile.workerID = this.dispatcher.broadcast('loadTile', params, done.bind(this));
             } else if (tile.state === 'loading') {
                 // schedule tile reloading after it has been loaded
                 tile.reloadCallback = callback;
             } else {
-                this.dispatcher.send('reloadTile', params, done.bind(this), tile.workerID);
+                this.dispatcher.broadcast('reloadTile', params, done.bind(this), tile.workerID);
             }
 
             function done(err, data) {
@@ -88,6 +89,8 @@ class MBTilesSource extends VectorTileSource {
                 if (err) {
                     return callback(err);
                 }
+
+                if (Array.isArray(data)) data = data[0];
 
                 if (this.map._refreshExpiredTiles) tile.setExpiryData(data);
                 tile.loadVectorData(data, this.map.painter);

@@ -7,3 +7,4 @@ plugins/
 .vscode/typings/cordova/cordova.d.ts
 typings/cordova-typings.d.ts
 jsconfig.json
+rollup/build/mapboxgl
